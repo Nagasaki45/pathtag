@@ -2,7 +2,7 @@ import os
 import argparse
 import logging
 
-import taglib
+from mutagen.easyid3 import EasyID3
 
 logger = logging.getLogger(__name__)
 
@@ -17,16 +17,17 @@ def path_to_tags(path):
         raise PathError()
     artist = path_as_list.pop(0)
     album = path_as_list.pop() if path_as_list else 'Unknown'
-    return {'ARTIST': artist, 'ALBUM': album}
+    return {'artist': artist, 'album': album}
 
 
 def update_tags(filepath, new_tags):
     try:
-        tagfile = taglib.File(filepath)
+        tagfile = EasyID3(filepath)
     except OSError as e:
-        logger.info('asd')
+        logger.info("mutagen failed to load '{}'".format(filepath))
         return
-    tagfile.tags.update(new_tags)
+    for key, val in new_tags.items():
+        tagfile[key] = [val]
     tagfile.save()
 
 

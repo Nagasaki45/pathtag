@@ -6,16 +6,16 @@ import pathtag
 
 
 class PathToTagsTest(unittest.TestCase):
-    
+
     def test_standard_case(self):
         path = 'Beatles/Revolver'
-        expected = {'ARTIST': 'Beatles', 'ALBUM': 'Revolver'}
+        expected = {'artist': 'Beatles', 'album': 'Revolver'}
 
         self.assertEqual(pathtag.path_to_tags(path), expected)
 
     def test_no_album(self):
         path = 'Beatles'
-        expected = {'ARTIST': 'Beatles', 'ALBUM': 'Unknown'}
+        expected = {'artist': 'Beatles', 'album': 'Unknown'}
 
         self.assertEqual(pathtag.path_to_tags(path), expected)
 
@@ -28,40 +28,45 @@ class PathToTagsTest(unittest.TestCase):
             pathtag.path_to_tags('Beatles/Are/Great')
 
 
-@mock.patch('pathtag.taglib')
+@mock.patch('pathtag.EasyID3')
 class UpdateTagsTest(unittest.TestCase):
 
     def setUp(self):
         self.filepath = 'MyMusic/Beatles/Revolver/01 - Tax Man.mp3'
         self.new_tags = {'ARTIST': 'Beatles', 'ALBUM': 'Revolver'}
 
-    def test_tagfile_created(self, mock_taglib):
+    def test_tagfile_created(self, mock_EasyID3):
         pathtag.update_tags(self.filepath, self.new_tags)
 
-        mock_taglib.File.assert_called_with(self.filepath)
+        mock_EasyID3.assert_called_with(self.filepath)
 
-    def test_updating_tags(self, mock_taglib):
-        tagfile = mock_taglib.File.return_value
-        tagfile.tags = {}
+    def test_updating_tags(self, mock_EasyID3):
+        tagfile = mock_EasyID3.return_value
+        mock_container = {}  # Used for collecting tagfile data
+        def setitem(name, val):
+            mock_container[name] = val
+        tagfile.__setitem__.side_effect = setitem
 
         pathtag.update_tags('filepath', self.new_tags)
 
-        self.assertEqual(tagfile.tags, self.new_tags)
+        for key, val in self.new_tags.items():
+            self.assertEqual(mock_container[key], [val])
 
-    def test_saving(self, mock_taglib):
-        tagfile = mock_taglib.File.return_value
+    def test_saving(self, mock_EasyID3):
+        tagfile = mock_EasyID3.return_value
 
         pathtag.update_tags('filepath', self.new_tags)
 
         tagfile.save.assert_called_with()
 
     @mock.patch('pathtag.logger')
-    def test_log_if_taglib_raises(self, mock_logger, mock_taglib):
-        mock_taglib.File.side_effect = OSError()
+    def test_log_if_EasyID3_raises(self, mock_logger, mock_EasyID3):
+        mock_EasyID3.side_effect = OSError()
 
         pathtag.update_tags('filepath', self.new_tags)
 
-        self.assertTrue(mock_logger.info.called)
+        mock_logger.info.assert_called_with(
+            "mutagen failed to load 'filepath'")
 
 
 def walk_mock(basedir):
