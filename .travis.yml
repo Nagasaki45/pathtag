@@ -2,4 +2,6 @@ language: python
 python:
   - '3.4'
 install: pip install -r requirements.txt
-script:  python test_pathtag.py
+script:
+  - python test_pathtag.py
+  - python functional_tests.py
