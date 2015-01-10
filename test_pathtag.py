@@ -2,6 +2,8 @@ import unittest
 from unittest import mock
 import os
 
+from mutagen.id3 import error as ID3Error
+
 import pathtag
 
 
@@ -61,7 +63,7 @@ class UpdateTagsTest(unittest.TestCase):
 
     @mock.patch('pathtag.logger')
     def test_log_if_EasyID3_raises(self, mock_logger, mock_EasyID3):
-        mock_EasyID3.side_effect = OSError()
+        mock_EasyID3.side_effect = ID3Error()
 
         pathtag.update_tags('filepath', self.new_tags)
 

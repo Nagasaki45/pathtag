@@ -3,6 +3,7 @@ import argparse
 import logging
 
 from mutagen.easyid3 import EasyID3
+from mutagen.id3 import error as ID3Error
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ def path_to_tags(path):
 def update_tags(filepath, new_tags):
     try:
         tagfile = EasyID3(filepath)
-    except OSError as e:
+    except ID3Error as e:
         logger.info("mutagen failed to load '{}'".format(filepath))
         return
     for key, val in new_tags.items():
