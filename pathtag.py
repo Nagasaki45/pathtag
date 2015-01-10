@@ -14,7 +14,7 @@ class PathError(Exception):
 
 def path_to_tags(path):
     path_as_list = path.split('/')
-    if len(path_as_list) > 2 or path == '':
+    if len(path_as_list) > 2 or path == '.':
         raise PathError()
     artist = path_as_list.pop(0)
     album = path_as_list.pop() if path_as_list else 'Unknown'

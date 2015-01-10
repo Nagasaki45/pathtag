@@ -23,7 +23,7 @@ class PathToTagsTest(unittest.TestCase):
 
     def test_raise_exception_on_empty_path(self):
         with self.assertRaises(pathtag.PathError):
-            pathtag.path_to_tags('')
+            pathtag.path_to_tags('.')
 
     def test_raise_exception_on_too_nested_path(self):
         with self.assertRaises(pathtag.PathError):

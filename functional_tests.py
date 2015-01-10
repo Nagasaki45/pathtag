@@ -41,7 +41,6 @@ class MainTest(unittest.TestCase):
         track = self.load_track('artist', 'unknown_album_track.mp3')
         self.assertEqual(track['album'], ['Unknown'])
 
-    @unittest.skip
     def test_illegal_path_no_dir(self):
         track = self.load_track('illegal_path_track.mp3')
         self.assertEqual(track['album'], ['asdasd'])  # Original value
