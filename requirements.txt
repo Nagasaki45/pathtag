@@ -1,2 +1,1 @@
-ipython==2.3.1
-mutagen==1.27
+mutagen==1.31
