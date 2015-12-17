@@ -73,36 +73,31 @@ class UpdateTagsTest(unittest.TestCase):
 
 def walk_mock(basedir):
     return [
-        ['basedir', ['dir'], []],
-        ['basedir/dir', [], ['file.mp3']],
+        ['basedir', ['Beatles'], []],
+        ['basedir/Beatles', ['Revolver'], []],
+        ['basedir/Beatles/Revolver', [], ['01 - Tax Man.mp3']]
     ]
 
 
-@mock.patch('pathtag.os')
+@mock.patch('pathtag.os.walk', new=walk_mock)
 @mock.patch('pathtag.path_to_tags')
 @mock.patch('pathtag.update_tags')
 class FixFilesMetadataTest(unittest.TestCase):
 
-    def test_extract_tags(self, mock_update_tags, mock_path_to_tags, mock_os):
-        mock_os.walk = walk_mock
-        relpath = mock_os.path.relpath.return_value
-
+    def test_extract_tags(self, mock_update_tags, mock_path_to_tags):
         pathtag.fix_files_metadata('basedir')
 
-        mock_path_to_tags.assert_called_with(relpath)
+        mock_path_to_tags.assert_called_with('Beatles/Revolver')
 
-    def test_update_file(self, mock_update_tags, mock_path_to_tags, mock_os):
-        mock_os.walk = walk_mock
-        mock_os.path.join = os.path.join
-
+    def test_update_file(self, mock_update_tags, mock_path_to_tags):
         pathtag.fix_files_metadata('basedir')
 
         tags = mock_path_to_tags.return_value
-        mock_update_tags.assert_called_with('basedir/dir/file.mp3', tags)
+        filepath = 'basedir/Beatles/Revolver/01 - Tax Man.mp3'
+        mock_update_tags.assert_called_with(filepath, tags)
 
     def test_do_nothing_when_path_is_illegal(self, mock_update_tags,
-                                             mock_path_to_tags, mock_os):
-        mock_os.walk = walk_mock
+                                             mock_path_to_tags):
         mock_path_to_tags.side_effect = pathtag.PathError()
 
         pathtag.fix_files_metadata('basedir')
