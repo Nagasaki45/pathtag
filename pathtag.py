@@ -32,7 +32,7 @@ def update_tags(filepath, new_tags):
     tagfile.save()
 
 
-def fix_files_metadata(basedir):
+def collect_tasks(basedir):
     for path, dirs, filenames in os.walk(basedir):
         relpath = os.path.relpath(path, basedir)
         try:
@@ -40,7 +40,7 @@ def fix_files_metadata(basedir):
         except PathError:
             continue
         for filename in filenames:
-            update_tags(os.path.join(path, filename), new_tags)
+            yield os.path.join(path, filename), new_tags
 
 
 def get_cmd_args():
@@ -52,7 +52,8 @@ def get_cmd_args():
 
 def main():
     args = get_cmd_args()
-    fix_files_metadata(args.basedir)
+    for task in collect_tasks(args.basedir):
+        update_tags(*task)
 
 
 if __name__ == '__main__':

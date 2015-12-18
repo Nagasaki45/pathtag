@@ -71,38 +71,39 @@ class UpdateTagsTest(unittest.TestCase):
             "mutagen failed to load 'filepath'")
 
 
-def walk_mock(basedir):
-    return [
-        ['basedir', ['Beatles'], []],
-        ['basedir/Beatles', ['Revolver'], []],
-        ['basedir/Beatles/Revolver', [], ['01 - Tax Man.mp3']]
-    ]
+class CollectTasksTest(unittest.TestCase):
+    """Black box test. Can't see how and why to mock path_to_tags"""
 
+    def test_collect_single_task(self):
+        def walk(basedir):
+            return [
+                ['basedir', ['Beatles'], []],
+                ['basedir/Beatles', ['Revolver'], []],
+                ['basedir/Beatles/Revolver', [], ['01 - Tax Man.mp3']]
+            ]
 
-@mock.patch('pathtag.os.walk', new=walk_mock)
-@mock.patch('pathtag.path_to_tags')
-@mock.patch('pathtag.update_tags')
-class FixFilesMetadataTest(unittest.TestCase):
+        with mock.patch('pathtag.os.walk', new=walk):
+            tasks = list(pathtag.collect_tasks('basedir'))
 
-    def test_extract_tags(self, mock_update_tags, mock_path_to_tags):
-        pathtag.fix_files_metadata('basedir')
+        expected_task = (
+            'basedir/Beatles/Revolver/01 - Tax Man.mp3',
+            {'artist': 'Beatles', 'album': 'Revolver'}
+        )
+        self.assertIn(expected_task, tasks)
 
-        mock_path_to_tags.assert_called_with('Beatles/Revolver')
+    def test_no_legal_paths(self):
+        def walk(basedir):
+            return [
+                ['basedir', ['Beatles'], ['Lennon.jpg']],
+                ['basedir/Beatles', ['Revolver'], []],
+                ['basedir/Beatles/Revolver', ['images'], []],
+                ['basedir/Beatles/Revolver/images', [], ['front.jpg', 'back.jpg']],
+            ]
 
-    def test_update_file(self, mock_update_tags, mock_path_to_tags):
-        pathtag.fix_files_metadata('basedir')
+        with mock.patch('pathtag.os.walk', new=walk):
+            tasks = list(pathtag.collect_tasks('basedir'))
 
-        tags = mock_path_to_tags.return_value
-        filepath = 'basedir/Beatles/Revolver/01 - Tax Man.mp3'
-        mock_update_tags.assert_called_with(filepath, tags)
-
-    def test_do_nothing_when_path_is_illegal(self, mock_update_tags,
-                                             mock_path_to_tags):
-        mock_path_to_tags.side_effect = pathtag.PathError()
-
-        pathtag.fix_files_metadata('basedir')
-
-        self.assertFalse(mock_update_tags.called)
+        self.assertEqual(len(tasks), 0)
 
 
 if __name__ == '__main__':
