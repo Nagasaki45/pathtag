@@ -15,7 +15,7 @@ class MainTest(unittest.TestCase):
     def setUp(self):
         # Backup MATERIALS_DIR
         with tarfile.TarFile(BACKUP, 'w') as backup:
-            backup.add('test_materials')
+            backup.add(MATERIALS_DIR)
         # Run pathtag.py on it
         subprocess.check_call(['python', 'pathtag.py', MATERIALS_DIR])
 
@@ -27,7 +27,7 @@ class MainTest(unittest.TestCase):
             backup.extractall()
         # Remove backup
         os.remove(BACKUP)
-        
+
     def load_track(self, *args):
         args = [MATERIALS_DIR] + list(args)
         return EasyID3(os.path.join(*args))
@@ -45,7 +45,7 @@ class MainTest(unittest.TestCase):
         track = self.load_track('illegal_path_track.mp3')
         self.assertEqual(track['album'], ['asdasd'])  # Original value
         self.assertEqual(track['artist'], ['asdasd'])  # Original value
-    
+
     def test_illegal_path_too_nested(self):
         track = self.load_track(
             'artist', 'album', 'illegal_path_dir', 'illegal_path_track.mp3'
