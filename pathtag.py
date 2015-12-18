@@ -1,6 +1,7 @@
 import os
 import argparse
 import logging
+from concurrent.futures import ProcessPoolExecutor as Executor
 
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import error as ID3Error
@@ -52,8 +53,9 @@ def get_cmd_args():
 
 def main():
     args = get_cmd_args()
-    for task in collect_tasks(args.basedir):
-        update_tags(*task)
+    with Executor() as executor:
+        for filepath, new_tags in collect_tasks(args.basedir):
+            executor.submit(update_tags, filepath, new_tags)
 
 
 if __name__ == '__main__':
