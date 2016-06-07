@@ -4,5 +4,5 @@ python:
   - '3.5'
 install: pip install -r requirements.txt
 script:
-  - python unit_tests.py
-  - python functional_tests.py
+  - python -m tests.unit_tests
+  - python -m tests.functional_tests

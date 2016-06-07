@@ -6,7 +6,7 @@ import subprocess
 
 from mutagen.easyid3 import EasyID3
 
-MATERIALS_DIR = 'test_materials'
+MATERIALS_DIR = 'tests/materials'
 BACKUP = 'backup.tar'
 
 
