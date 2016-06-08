@@ -7,7 +7,7 @@ pathtag
 .. image:: https://badge.fury.io/py/pathtag.svg
     :target: https://badge.fury.io/py/pathtag
 
-Your music is carefully organized into folders but your MP3 player insist on browsing (and playing) your music by its metadata information?
+Your music is carefully organized into folders but your MP3 player insists on browsing (and playing) your music by its metadata information?
 
 Use this script to override the 'Artist' and 'Album' information with data extracted from the file paths.
 
@@ -16,7 +16,7 @@ Usage
 
 .. code:: bash
 
-  python pathtag.py basedir
+  pathtag basedir
 
 Suppose you got something like this in your ``basedir``:
 
